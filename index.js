@@ -1,5 +1,5 @@
 const express = require('express')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config()
 const app = express()
@@ -26,6 +26,13 @@ async function run() {
             const cursor = sparkCollection.find(query);
             const spark = await cursor.toArray();
             res.send(spark)
+        })
+
+        app.get('/spark/:sparkId', async (req, res) => {
+          const id = req.params.sparkId;
+          const query = {_id: ObjectId(id)}
+          const result = await sparkCollection.findOne(query)
+          res.send(result)
         })
 
     }
