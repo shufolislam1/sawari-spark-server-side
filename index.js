@@ -35,6 +35,12 @@ async function run() {
           res.send(result)
         })
 
+        app.post('/spark' , async (req, res) => {
+          const newSpark = req.body;
+          const result = await sparkCollection.insertOne(newSpark);
+          res.send(result)
+        })
+
     }
     finally{
 
