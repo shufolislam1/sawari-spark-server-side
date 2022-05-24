@@ -48,10 +48,10 @@ async function run() {
           res.send(result)
         })
 
-        app.put('/info/:userId', async (req, res) => {
-          const id = req.params.userId;
+        app.put('/info', async (req, res) => {
+          // const id = req.params.userId;
           const updatedInfo = req.body;
-          const filter = {_id: ObjectId(id)}
+          // const filter = {_id: ObjectId(id)}
           const options = {upsert: true}
           const updateDoc = {
             $set: {
@@ -60,7 +60,7 @@ async function run() {
               phone: updatedInfo.phone
             }
           };
-          const result = await infoCollection.updateOne(filter, updateDoc, options)
+          const result = await infoCollection.updateOne( updateDoc, options)
           res.send(result)
         })
 
