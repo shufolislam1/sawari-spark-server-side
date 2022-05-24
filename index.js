@@ -20,6 +20,7 @@ async function run() {
         await client.connect()
 
         const sparkCollection = client.db("sawariSpark").collection("tools")
+        const infoCollection = client.db("information").collection("usersInfo")
 
         app.get('/spark', async (req, res) => {
             const query = {}
@@ -38,6 +39,12 @@ async function run() {
         app.post('/spark' , async (req, res) => {
           const newSpark = req.body;
           const result = await sparkCollection.insertOne(newSpark);
+          res.send(result)
+        })
+
+        app.post('/info', async (req, res) => {
+          const newInfo = req.body;
+          const result = await infoCollection.insertOne(newInfo);
           res.send(result)
         })
 
