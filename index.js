@@ -48,6 +48,22 @@ async function run() {
           res.send(result)
         })
 
+        app.put('/info/:userId', async (req, res) => {
+          const id = req.params.userId;
+          const updatedInfo = req.body;
+          const filter = {_id: ObjectId(id)}
+          const options = {upsert: true}
+          const updateDoc = {
+            $set: {
+              education: updatedInfo.education,
+              location: updatedInfo.location,
+              phone: updatedInfo.phone
+            }
+          };
+          const result = await infoCollection.updateOne(filter, updateDoc, options)
+          res.send(result)
+        })
+
     }
     finally{
 
