@@ -21,7 +21,8 @@ async function run() {
 
         const sparkCollection = client.db("sawariSpark").collection("tools")
         const infoCollection = client.db("information").collection("usersInfo")
-        const orderColection = client.db("allOrders").collection("order")
+        const orderCollection = client.db("allOrders").collection("order")
+        const reviewCollection = client.db("allReviews").collection("reviews")
 
         app.get('/spark', async (req, res) => {
             const query = {}
@@ -37,21 +38,27 @@ async function run() {
           res.send(result)
         })
 
-        app.post('/spark' , async (req, res) => {
-          const newSpark = req.body;
-          const result = await sparkCollection.insertOne(newSpark);
+        // app.post('/spark' , async (req, res) => {
+        //   const newSpark = req.body;
+        //   const result = await sparkCollection.insertOne(newSpark);
+        //   res.send(result)
+        // })
+
+        app.post('/review', async (req, res) => {
+          const newReview = req.body;
+          const result = await reviewCollection.insertOne(newReview);
+          res.send(result)
+        })
+
+        app.post('/order', async (req, res) => {
+          const newOrder = req.body;
+          const result = await orderCollection.insertOne(newOrder);
           res.send(result)
         })
 
         app.post('/info', async (req, res) => {
           const newInfo = req.body;
           const result = await infoCollection.insertOne(newInfo);
-          res.send(result)
-        })
-
-        app.post('/info', async (req, res) => {
-          const newOrder = req.body;
-          const result = await orderColection.insertOne(newOrder);
           res.send(result)
         })
 
