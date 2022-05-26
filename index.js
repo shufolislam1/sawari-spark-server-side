@@ -50,9 +50,23 @@ async function run() {
           res.send(result)
         })
 
+        app.get('/review', async (req, res) => {
+          const query = {}
+          const cursor = reviewCollection.find(query)
+          const result = await cursor.toArray();
+          res.send(result)
+        })
+
         app.post('/order', async (req, res) => {
           const newOrder = req.body;
           const result = await orderCollection.insertOne(newOrder);
+          res.send(result)
+        })
+
+        app.get('/order', async(req, res) => {
+          const query = {}
+          const cursor = orderCollection.find(query)
+          const result = await cursor.toArray()
           res.send(result)
         })
 
