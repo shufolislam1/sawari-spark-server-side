@@ -76,6 +76,13 @@ async function run() {
           res.send(result)
         })
 
+        app.get('/info', async (req, res) => {
+          const query = {}
+          const cursor = infoCollection.find(query)
+          const result = await cursor.toArray()
+          res.send(result)
+        })
+
         app.put('/info', async (req, res) => {
           // const id = req.params.userId;
           const updatedInfo = req.body;
