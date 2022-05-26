@@ -23,6 +23,7 @@ async function run() {
         const infoCollection = client.db("information").collection("usersInfo")
         const orderCollection = client.db("allOrders").collection("order")
         const reviewCollection = client.db("allReviews").collection("reviews")
+        const userCollection = client.db("allUsers").collection("users")
 
         app.get('/spark', async (req, res) => {
             const query = {}
@@ -31,18 +32,26 @@ async function run() {
             res.send(spark)
         })
 
+        // for jwt
+
+        app.put('/user/:email', async (req, res) => {
+          const email = req.params.email;
+          const user = req.body;
+          const filter = {email: email}
+          const options = {upsert: true}
+          const updateDoc = {
+            $set: user,
+          };
+          const result = await userCollection.updateOne(filter, updateDoc, options);
+          res.send(result)
+        })
+
         app.get('/spark/:sparkId', async (req, res) => {
           const id = req.params.sparkId;
           const query = {_id: ObjectId(id)}
           const result = await sparkCollection.findOne(query)
           res.send(result)
         })
-
-        // app.post('/spark' , async (req, res) => {
-        //   const newSpark = req.body;
-        //   const result = await sparkCollection.insertOne(newSpark);
-        //   res.send(result)
-        // })
 
         app.post('/review', async (req, res) => {
           const newReview = req.body;
