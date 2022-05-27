@@ -17,7 +17,18 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 function verifyJWT(req, res, next){
-      console.log('abc');
+      const authHeader = req.headers.authorization;
+      if(!authHeader){
+        return res.status(401).send({message: 'UnAuthorized Access'})
+      }
+      const token = authHeader.split(' ')
+      jwt.verify(token, process.eventNames.ACCESS_TOKEN_SECRET, function(err, decoded){
+          if(err){
+            return res.status(403).send({message: 'Forbidden Access'})
+          }
+          req.decoded = decoded;
+          next()
+      })
 }
 
 async function run() {
@@ -48,7 +59,7 @@ async function run() {
             $set: user,
           };
           const result = await userCollection.updateOne(filter, updateDoc, options);
-          const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+          const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET)
           res.send({result, token})
         })
 
@@ -78,12 +89,19 @@ async function run() {
           res.send(result)
         })
 
-        app.get('/order', verifyJWT, async(req, res) => {
+        app.get('/order', verifyJWT,  async(req, res) => {
           const email = req.query.email
-          const query = {email: email}
-          const cursor = orderCollection.find(query)
-          const result = await cursor.toArray()
-          res.send(result)
+          // const decodedEmail = req.decoded.email;
+          // console.log(decodedEmail);
+          if(email){
+            const query = {email: email}
+            const cursor = orderCollection.find(query)
+            const result = await cursor.toArray()
+            return res.send(result)
+          }
+          // else{
+          //   return res.status(403).send({message: 'Forbidden Access'})
+          // }
         })
 
         app.post('/info', async (req, res) => {
