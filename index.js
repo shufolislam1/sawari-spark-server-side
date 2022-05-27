@@ -1,6 +1,7 @@
 const express = require('express')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000
@@ -14,6 +15,10 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.nh40c.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+function verifyJWT(req, res, next){
+      console.log('abc');
+}
 
 async function run() {
     try{
@@ -43,7 +48,8 @@ async function run() {
             $set: user,
           };
           const result = await userCollection.updateOne(filter, updateDoc, options);
-          res.send(result)
+          const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+          res.send({result, token})
         })
 
         app.get('/spark/:sparkId', async (req, res) => {
@@ -72,7 +78,7 @@ async function run() {
           res.send(result)
         })
 
-        app.get('/order', async(req, res) => {
+        app.get('/order', verifyJWT, async(req, res) => {
           const email = req.query.email
           const query = {email: email}
           const cursor = orderCollection.find(query)
@@ -94,10 +100,10 @@ async function run() {
           res.send(result)
         })
 
-        app.put('/info', async (req, res) => {
-          // const id = req.params.userId;
+        app.put('/info/:email', async (req, res) => {
+          const email = req.query.email;
           const updatedInfo = req.body;
-          // const filter = {_id: ObjectId(id)}
+          const filter = {email: email}
           const options = {upsert: true}
           const updateDoc = {
             $set: {
@@ -106,7 +112,7 @@ async function run() {
               phone: updatedInfo.phone
             }
           };
-          const result = await infoCollection.updateOne( updateDoc, options)
+          const result = await infoCollection.updateMany(filter, updateDoc, options)
           res.send(result)
         })
 
