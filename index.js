@@ -63,6 +63,11 @@ async function run() {
           res.send({result, token})
         })
 
+        app.get('/user', async (req, res) => {
+          const result = await userCollection.find().toArray()
+          res.send(result)
+        })
+
         app.get('/spark/:sparkId', async (req, res) => {
           const id = req.params.sparkId;
           const query = {_id: ObjectId(id)}
