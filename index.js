@@ -2,6 +2,7 @@ const express = require('express')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const { use } = require('express/lib/application');
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000
@@ -18,16 +19,17 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 // function verifyJWT(req, res, next) {
 //   const authHeader = req.headers.authorization;
+//   console.log(authHeader);
 //   if (!authHeader) {
 //     return res.status(401).send({ message: 'UnAuthorized Access' })
 //   }
-//   const token = authHeader.split(' ')
-//   jwt.verify(token, process.eventNames.ACCESS_TOKEN_SECRET, function (err, decoded) {
+//   const token = authHeader.split(' ')[1];
+//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
 //     if (err) {
 //       return res.status(403).send({ message: 'Forbidden Access' })
 //     }
 //     req.decoded = decoded;
-//     next()
+//     next();
 //   })
 // }
 
@@ -49,7 +51,23 @@ async function run() {
     })
 
     // for jwt
-    app.put('/user/:email', async (req, res) => {
+    app.put('/user/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email }
+      const updateDoc = {
+        $set: {role: 'admin'},
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result)
+    })
+
+    app.get('/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({email: email});
+      const isAdmin = user.role === 'admin';
+      res.send({admin: isAdmin})
+    })
+    app.put('/user/:email',  async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const filter = { email: email }
@@ -93,13 +111,13 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/order', async (req, res) => {
+    app.get('/order',  async (req, res) => {
       const email = req.query.email;
       // const authorization = req.headers.authorization;
       // console.log('auth header', authorization);
       // const decodedEmail = req.decoded.email;
       // console.log(decodedEmail);
-      // if(email){
+      // if(decodedEmail === email){
       //   const query = {email: email}
       //   const cursor = orderCollection.find(query)
       //   const result = await cursor.toArray()
@@ -120,7 +138,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/info', async (req, res) => {
+    app.get('/info',  async (req, res) => {
       const email = req.query.email
       const query = { email: email }
       const cursor = infoCollection.find(query)
